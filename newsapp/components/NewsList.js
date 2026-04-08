@@ -2,15 +2,19 @@ import { View, FlatList, StyleSheet } from 'react-native';
 import NewsListItem from './NewsListItem';
 import { NEWS_ITEMS } from '../data/dummy-data';
 
-// this component receives a category (us, world, tech, etc) //
-// it filters the dummy data and renders only matching items //
+// this component can either:
+// - receive a category and filter dummy data
+// - or receive a direct items array (used for bookmarks) //
 // each item navigates to the detail screen when pressed //
 
-function NewsList({ category, navigation }) {
-  // filter items by category //
-  const filteredItems = NEWS_ITEMS.filter(
-    (item) => item.category === category
-  );
+function NewsList({ category, items, navigation }) {
+  // decide which items to render //
+  let dataToRender = items;
+
+  // if no items prop is provided, fall back to filtering by category //
+  if (!dataToRender) {
+    dataToRender = NEWS_ITEMS.filter((item) => item.category === category);
+  }
 
   // handler for navigating to detail screen //
   function selectItemHandler(id) {
@@ -22,7 +26,7 @@ function NewsList({ category, navigation }) {
   return (
     <View style={styles.container}>
       <FlatList
-        data={filteredItems}
+        data={dataToRender}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <NewsListItem

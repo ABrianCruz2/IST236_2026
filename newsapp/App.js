@@ -8,6 +8,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import CustomDrawerLayout from './navigation/CustomDrawerLayout';
 import NewsDetailScreen from './screens/NewsDetailScreen';
 
+// import the bookmarks context provider //
+import { BookmarksContextProvider } from './store/context/bookmarks-context';
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -38,24 +41,26 @@ export default function App() {
     );
   }
 
-  // once fonts are ready, render the navigation container and stack setup //
+  // once fonts are ready, wrap the entire app in the bookmarks provider //
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        {/* this is the root of the app's navigation and loads my drawer layout */}
-        <Stack.Screen
-          name="DrawerRoot"
-          component={CustomDrawerLayout}
-          options={{ headerShown: false }}
-        />
+    <BookmarksContextProvider>
+      <NavigationContainer>
+        <Stack.Navigator>
+          {/* this is the root of the app's navigation and loads my drawer layout */}
+          <Stack.Screen
+            name="DrawerRoot"
+            component={CustomDrawerLayout}
+            options={{ headerShown: false }}
+          />
 
-        {/* this screen shows the full details for a selected news item */}
-        <Stack.Screen
-          name="NewsDetail"
-          component={NewsDetailScreen}
-          options={{ title: 'News Detail' }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+          {/* this screen shows the full details for a selected news item */}
+          <Stack.Screen
+            name="NewsDetail"
+            component={NewsDetailScreen}
+            options={{ title: 'News Detail' }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </BookmarksContextProvider>
   );
 }

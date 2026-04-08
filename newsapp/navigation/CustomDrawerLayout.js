@@ -1,5 +1,5 @@
 // navigation/CustomDrawerLayout.js
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -8,19 +8,24 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import TabNavigator from './TabNavigator';
 import BookmarkedNewsScreen from '../screens/BookmarkedNewsScreen';
+import { BookmarksContext } from '../store/context/bookmarks-context';
 
 const { width } = Dimensions.get('window');
 const DRAWER_WIDTH = width * 0.7;
 
 function CustomDrawerLayout({ navigation }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [activeDrawerScreen, setActiveDrawerScreen] = useState('tabs'); // 'tabs' | 'bookmarks'
+  const [activeDrawerScreen, setActiveDrawerScreen] = useState('tabs');
   const [translateX] = useState(new Animated.Value(-DRAWER_WIDTH));
 
-  // open the drawer by sliding it in from the left //
+  // subscribe to bookmarks context so this layout re-renders when bookmarks change //
+  const bookmarksCtx = useContext(BookmarksContext);
+  // we don't need to use bookmarksCtx directly here, just reading it is enough //
+
   function openDrawer() {
     setIsDrawerOpen(true);
     Animated.timing(translateX, {
@@ -30,7 +35,6 @@ function CustomDrawerLayout({ navigation }) {
     }).start();
   }
 
-  // close the drawer by sliding it back out of view //
   function closeDrawer() {
     Animated.timing(translateX, {
       toValue: -DRAWER_WIDTH,
@@ -41,13 +45,11 @@ function CustomDrawerLayout({ navigation }) {
     });
   }
 
-  // switch between the two drawer destinations and close the drawer afterward //
   function selectDrawerItem(screenKey) {
     setActiveDrawerScreen(screenKey);
     closeDrawer();
   }
 
-  // header bar with a menu button that triggers the drawer //
   function Header() {
     return (
       <View style={styles.header}>
@@ -55,7 +57,6 @@ function CustomDrawerLayout({ navigation }) {
           <Text style={styles.menuText}>☰</Text>
         </TouchableOpacity>
 
-        {/* dynamically show the title based on which drawer screen is active */}
         <Text style={styles.headerTitle}>
           {activeDrawerScreen === 'tabs' ? 'News' : 'Bookmarked News'}
         </Text>
@@ -64,25 +65,26 @@ function CustomDrawerLayout({ navigation }) {
   }
 
   return (
-    <View style={styles.root}>
-      {/* always show the header at the top */}
+    <SafeAreaView style={styles.root}>
       <Header />
 
-      {/* render either the tab navigator or the bookmarked news screen */}
       <View style={styles.content}>
         {activeDrawerScreen === 'tabs' ? (
           <TabNavigator />
         ) : (
-          <BookmarkedNewsScreen />
+          // pass navigation down so bookmarked screen (and its list) can navigate //
+          <BookmarkedNewsScreen navigation={navigation} />
         )}
       </View>
 
-      {/* dimmed backdrop that closes the drawer when tapped */}
       {isDrawerOpen && (
-        <TouchableOpacity style={styles.backdrop} onPress={closeDrawer} activeOpacity={1} />
+        <TouchableOpacity
+          style={styles.backdrop}
+          onPress={closeDrawer}
+          activeOpacity={1}
+        />
       )}
 
-      {/* animated drawer sliding in from the left */}
       <Animated.View
         style={[
           styles.drawer,
@@ -93,7 +95,6 @@ function CustomDrawerLayout({ navigation }) {
       >
         <Text style={styles.drawerTitle}>Menu</Text>
 
-        {/* drawer item: main news tabs */}
         <TouchableOpacity
           style={styles.drawerItem}
           onPress={() => selectDrawerItem('tabs')}
@@ -101,7 +102,6 @@ function CustomDrawerLayout({ navigation }) {
           <Text style={styles.drawerItemText}>News</Text>
         </TouchableOpacity>
 
-        {/* drawer item: bookmarked news */}
         <TouchableOpacity
           style={styles.drawerItem}
           onPress={() => selectDrawerItem('bookmarks')}
@@ -109,7 +109,7 @@ function CustomDrawerLayout({ navigation }) {
           <Text style={styles.drawerItemText}>Bookmarked News</Text>
         </TouchableOpacity>
       </Animated.View>
-    </View>
+    </SafeAreaView>
   );
 }
 

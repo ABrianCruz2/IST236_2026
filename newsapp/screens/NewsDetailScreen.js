@@ -1,27 +1,47 @@
-import { useLayoutEffect } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
+import { useLayoutEffect, useContext } from 'react';
+import { View, Text, Image, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { NEWS_ITEMS } from '../data/dummy-data';
+
+// import the bookmarks context //
+import { BookmarksContext } from '../store/context/bookmarks-context';
 
 // this screen displays the full details of a selected news item //
 // it receives the newsId from navigation params //
-// it also sets a placeholder bookmark button in the header //
+// it also sets a working bookmark button in the header //
 
 function NewsDetailScreen({ route, navigation }) {
   const { newsId } = route.params;
 
+  // access bookmark state from context //
+  const bookmarksCtx = useContext(BookmarksContext);
+
+  // check if this news item is already bookmarked //
+  const isBookmarked = bookmarksCtx.ids.includes(newsId);
+
   // find the selected news item //
   const selectedNews = NEWS_ITEMS.find((item) => item.id === newsId);
+
+  // toggle bookmark handler //
+  function toggleBookmarkHandler() {
+    if (isBookmarked) {
+      bookmarksCtx.removeBookmark(newsId);
+    } else {
+      bookmarksCtx.addBookmark(newsId);
+    }
+  }
 
   // set up header bookmark button //
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <Text style={styles.bookmarkPlaceholder}>
-          ★
-        </Text>
+        <Pressable onPress={toggleBookmarkHandler}>
+          <Text style={styles.bookmarkIcon}>
+            {isBookmarked ? '★' : '☆'}
+          </Text>
+        </Pressable>
       ),
     });
-  }, [navigation]);
+  }, [navigation, isBookmarked]);
 
   return (
     <ScrollView style={styles.container}>
@@ -79,9 +99,9 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 
-  bookmarkPlaceholder: {
-    // temporary bookmark icon //
-    fontSize: 22,
+  bookmarkIcon: {
+    // bookmark icon in header //
+    fontSize: 26,
     marginRight: 12,
   },
 });
