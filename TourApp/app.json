@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "TourApp",
+    "slug": "TourApp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/dos2go.webp",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/dos2go.webp",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/images/dos2go.webp"
+    },
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}
